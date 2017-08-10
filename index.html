@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+      <script src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <title>Info windows</title>
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+
+      // This example displays a marker at the center of Australia.
+      // When the user clicks the marker, an info window opens.
+
+      function initMap() {
+          // PLACES
+          var map = new google.maps.Map(document.getElementById('map'), {
+              zoom: 5,
+              center: {lat: 32.8653302, lng: 101.3991964}
+            });
+          
+          
+          // This is the demo. next step is to take dynamic from the admin panel.
+          var pin1,
+              pin2,
+              pin3,
+              pin4,
+              pin5 = "";
+          
+              // China pin1
+              $.get('templates/pin1.html', function(content){
+                  pin1 = "'" + content + "'";
+              }, 'html');
+
+              // China pin2
+              $.get('templates/pin2.html', function(content){
+                  pin2 = "'" + content + "'";
+              }, 'html');
+
+          setTimeout(function(){
+              var places = [
+                    // 0 - title, 1 - lat, 2 - lng, 3  - zIndex, 4 - descritption
+                  ['uluru', 29.7960767, 101.8393269, 1, pin1],
+                  ['nanxi', 28.8496284, 104.9681465, 2, pin2]
+              ];
+              
+             setMarkers(map, places);
+          }, 500);
+      }
+        
+        function setMarkers(map, places){
+            var shape = {
+              coords: [1, 1, 1, 20, 18, 20, 18, 1],
+              type: 'poly'
+            };
+          
+          var image = {
+              url: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
+              // This marker is 20 pixels wide by 32 pixels high.
+              size: new google.maps.Size(20, 32),
+              // The origin for this image is (0, 0).
+              origin: new google.maps.Point(0, 0),
+              // The anchor for this image is the base of the flagpole at (0, 32).
+              anchor: new google.maps.Point(0, 32)
+            };
+            
+            for(var i = 0; i < places.length; i++)
+            {
+                var place = places[i];
+                var latlngset = new google.maps.LatLng(place[1], place[2], 20);
+                var marker = new google.maps.Marker({ 
+                    position: latlngset,
+                    map: map,
+                    icon: image,
+                    shape: shape,
+                    title: place[0],
+                    zIndex: place[3]
+                });
+
+                var infowindow = new google.maps.InfoWindow();
+                var content = place[4];
+
+                google.maps.event.addListener(marker,'click', (function(marker,content,infowindow){ 
+                    return function() {
+                       infowindow.setContent(content);
+                       infowindow.open(map,marker);
+                    };
+                })(marker,content,infowindow));
+
+            }
+        }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCkp2iSgh8-GIUFCty0ik5seCN3_UxkW5o&callback=initMap"></script>
+  </body>
+</html>
